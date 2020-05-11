@@ -1,22 +1,33 @@
-import unittest
-from maximum_loot import maximum_loot_value
+# python3
+
+from sys import stdin
 
 
-class TestMaximumLoot(unittest.TestCase):
-    def test(self):
-        for (capacity, weights, prices, answer) in [
-            (50, [20, 50, 30], [60, 100, 120], 180.0),
-            (10, [30], [500], 500/3),
-            (100, [20, 50, 30], [60, 100, 120], 280.0),
-            (1000, [10], [20], 20),
-            (1000, [500], [30], 30)
-        ]:
-            self.assertAlmostEqual(
-                maximum_loot_value(capacity, weights, prices),
-                answer,
-                delta=1e-03
-            )
+def maximum_loot_value(capacity, weights, prices):
+    assert 0 <= capacity <= 2 * 10 ** 6
+    assert len(weights) == len(prices)
+    assert 1 <= len(weights) <= 10 ** 3
+    assert all(0 < w <= 2 * 10 ** 6 for w in weights)
+    assert all(0 <= p <= 2 * 10 ** 6 for p in prices)
+    value = 0
+    max_index = 0
+    rate = [a / b for a, b in zip(prices, weights)]
+    while capacity > 0 and rate:
+        max_index = rate.index(max(rate))
+        a = min(capacity, weights[max_index])
+        value += a * max(rate)
+        capacity -= a
+        if a == weights[max_index]:
+            rate.remove(max(rate))
+            del weights[max_index]
+
+    return value
 
 
-if __name__ == '__main__':
-    unittest.main()
+if __name__ == "__main__":
+    data = list(map(int, stdin.read().split()))
+    n, input_capacity = data[0:2]
+    input_prices = data[2:(2 * n + 2):2]
+    input_weights = data[3:(2 * n + 2):2]
+    opt_value = maximum_loot_value(input_capacity, input_weights, input_prices)
+    print("{:.10f}".format(opt_value))
